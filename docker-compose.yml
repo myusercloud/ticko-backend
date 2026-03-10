@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: ticko-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-4000}:4000"
+    depends_on:
+      - postgres
+      - redis
+    command: npm run dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ticko-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ticko
+    ports:
+      - "5432:5432"
+    volumes:
+      - ticko-postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: ticko-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  ticko-postgres-data:
